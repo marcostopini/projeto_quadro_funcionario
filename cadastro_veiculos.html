@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="estilo.css">
+
+    <script>
+        var banco = [];
+        var indice = -1;
+
+        banco.push({modelo: 'Ford KA',
+                    marca: 'Ford',
+                    ano: '2021',
+                    descricao: 'Ford Ka Sedan 1.5 automático',
+                    valor: 70000
+                });
+
+        banco.push({modelo: 'Ford Focus',
+                    marca: 'Ford',
+                    ano: '2015',
+                    descricao: 'Ford Focus Sedan 1.6 automático',
+                    valor: 40000
+                });
+
+
+        banco.push({modelo: 'Corolla',
+                    marca: 'Toyota',
+                    ano: '2023',
+                    descricao: 'Toyota Corolla 1.8 automático, hibrido',
+                    valor: 160000
+                });
+
+        banco.push({modelo: 'City',
+                    marca: 'Honda',
+                    ano: '2023',
+                    descricao: 'Honda City 1.5 automático',
+                    valor: 135000
+                });
+               
+        function cadastrar(){
+            var veiculo = {
+                modelo: "",
+                marca: "",
+                ano: "",
+                descricao: "",
+                valor: 0
+            };
+
+            if (document.getElementById("modelo").value == ''){
+               alert('O modelo do veículo não foi informado!');
+               document.getElementById('modelo').focus();  
+            }
+            else
+            {
+              veiculo["modelo"]    = document.getElementById("modelo").value;
+              veiculo["marca"]     = document.getElementById("marca").value;
+              veiculo["ano"]       = document.getElementById("ano").value;
+              veiculo["descricao"] = document.getElementById("descricao").value;
+              veiculo["valor"]     = Number(document.getElementById("valor").value);
+              
+
+              banco.push(veiculo);
+
+              listar();
+              limpar();
+            }
+
+        }
+
+        function limpar(){
+            var elementos = document.getElementsByTagName("input");
+        
+            for (var i=0; i < 5; i++){
+                elementos[i].value = "";    
+            }
+        }
+
+        function ordena(a, b) {
+          var modeloA = a.modelo.toLowerCase();
+          var modeloB = b.modelo.toLowerCase();
+
+          if (modeloA < modeloB) {
+           return -1;
+          } else if (modeloA > modeloB) {
+             return 1;
+          } else {
+            return 0;
+          }
+        };
+
+
+        function listar(){
+            var saida = cabechalhoTabela();
+
+           //banco.sort(ordena);
+
+            for(var i=0; i < banco.length; i++) {
+                saida += InserirLinha(banco[i],i);
+                console.log(banco[i]);
+            }
+            document.getElementById("tabela").innerHTML = saida;
+        }
+
+
+        function InserirLinha (objeto,posicao){
+            var str = "<tr>";
+                str += "<td>" + objeto.modelo + "</td>"; 
+                str += "<td>" + objeto.marca + "</td>";
+                str += "<td>" + objeto.ano + "</td>";
+                str += "<td>" + objeto.descricao + "</td>";
+                str += "<td>" + formatarValor(objeto.valor) + "</td>";
+                str += colunaAcoes(posicao); 
+                str += "</tr>"; 
+            return str;   
+        };
+
+        function cabechalhoTabela(){
+            var cabechalho = "<tr>"
+                cabechalho += " <td>Modelo</td>"
+                cabechalho += " <td>Marca</td>"
+                cabechalho += " <td>Ano</td>";
+                cabechalho += " <td>Descrição</td>";
+                cabechalho += " <td>Valor</td>";
+                cabechalho += " <td>Ações</td>";
+                cabechalho += "</tr>";
+            return cabechalho;               
+        }
+
+
+        function colunaAcoes(posicao){
+            var coluna = "<td>";
+            coluna += "<input type='button' value='Editar'";
+            coluna += " onclick='editar(" + posicao + ")' />";
+            
+            coluna += "<input type='button' value='Excluir'";
+            coluna += " onclick='excluir(" + posicao + ")' />";
+
+            coluna += "</td>"; 
+            return coluna;   
+        }
+
+        function formatarValor(sal) {
+            var s = sal.toFixed(2);
+            return s.replace(".", ",");
+        }
+
+        function editar(p){
+            indice = p;
+            document.getElementById("modelo").value     = banco[p].modelo;
+            document.getElementById("marca").value      = banco[p].marca;
+            document.getElementById("ano").value        = banco[p].ano;
+            document.getElementById("descricao").value  = banco[p].descricao;
+            document.getElementById("valor").value      = banco[p].valor;
+
+            document.getElementById("cadastro").disabled = true;
+            document.getElementById("atualiza").disabled = false;
+            document.getElementById("cancela").disabled  = false;
+
+            document.getElementById('modelo').focus();
+
+        }
+
+        function atualizar(){
+            banco[indice].modelo    = document.getElementById("modelo").value;
+            banco[indice].marca     = document.getElementById("marca").value;
+            banco[indice].ano       = document.getElementById("ano").value;
+            banco[indice].descricao = document.getElementById("descricao").value;
+            banco[indice].valor     = Number(document.getElementById("valor").value);
+                        
+            listar();
+            limpar();
+
+            document.getElementById("cadastro").disabled = false;
+            document.getElementById("atualiza").disabled = true;
+            document.getElementById("cancela").disabled  = true;
+        }
+
+        function excluir(p){
+            var resposta = confirm("Deseja excluir este veículo?");
+            if (resposta == true){
+                banco.splice(p, 1);
+                listar();
+            }
+        }
+        
+        function cancelar(){
+            document.getElementById("cadastro").disabled = false;
+            document.getElementById("atualiza").disabled = true;
+            document.getElementById("cancela").disabled  = true;
+            limpar();
+        }   
+
+        function buscar(){  
+            var modelo = document.getElementById("modeloBusca").value;
+
+            var saida = cabechalhoTabela();
+
+            for(var i=0; i < banco.length; i++) {
+                if(banco[i].modelo.toLowerCase().indexOf(modelo.toLowerCase()) != -1) {    
+                   saida += "<tr>"
+                   saida += "<td>" + banco[i].modelo + "</td>"; 
+                   saida += "<td>" + banco[i].marca + "</td>";
+                   saida += "<td>" + banco[i].ano + "</td>";
+                   saida += "<td>" + banco[i].descricao + "</td>";
+                   saida += "<td>" + formatarValor(banco[i].valor) + "</td>";
+                   saida += colunaAcoes(i); 
+                   saida += "</tr>" 
+                }  
+            }    
+            
+            document.getElementById("tabela").innerHTML = saida;
+        }   
+
+    </script>
+</head>
+<body onload="limpar(); listar()">
+    <h1>Cadastro de Veículos</h1>
+    <form>        
+        <label>Modelo: </label>
+        <input type="text" id="modelo" placeholder="Modelo" autofocus /> <br><br>
+ 
+        <label>Marca: </label>
+        <input type="text" id="marca" placeholder="Marca" /> <br><br>
+
+        <label>Ano de Fabricação: </label>       
+        <input type="number" id="ano" placeholder="Ano de fabricação" /> <br><br>
+        
+        <label>Descrição: </label>
+        <input type="text" id="descricao" placeholder="Descrição" /><br><br>
+               
+        <label>Valor: </label>       
+        <input type="Valor" id="valor" step=".01" /> <br><br>
+
+        <input type="button" value="Cadastrar" id="cadastro" onclick="cadastrar()"  />
+        <input type="button" value="Atualizar" id="atualiza" onclick="atualizar()" disabled="true" />
+        <input type="button" value="Cancelar"  id="cancela"  onclick="cancelar()"  disabled="true" />
+        <br><br>
+    </form>
+
+    <form>
+        <input type="button" value="Buscar" id="busca" onclick="buscar()" />
+        <input type="text" id="modeloBusca" placeholder="Informe modelo para busca" />
+    </form>
+
+    <table id="tabela" border="1">
+
+    </table>
+</body>
+</html>
